@@ -21,7 +21,7 @@
               "type": "AMAZON.SearchQuery"
             }
           ],
-          "name": "HelloWorldIntent",
+          "name": "BuscarFarmaciasIntent",
           "samples": [
             "dónde están las farmacias más cercanas a {ubicacion}",
             "busca farmacias cerca de {ubicacion}",
@@ -31,6 +31,20 @@
         {
           "name": "AMAZON.NavigateHomeIntent",
           "samples": []
+        },
+        {
+          "slots": [
+            {
+              "name": "ubicacion",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "BuscarFarmaciasAbiertasIntent",
+          "samples": [
+            "encuentra las farmacias abiertas más cercanas a {ubicacion}",
+            "busca farmacias abiertas cerca de {ubicacion}",
+            "dónde están las farmacias abiertas más cercanas a {ubicacion}"
+          ]
         }
       ],
       "types": [],

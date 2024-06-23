@@ -2,6 +2,7 @@ const Alexa = require('ask-sdk-core');
 const axios = require('axios');
 
 const API_KEY = '';
+const CANT_RESULTS = 5;
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -20,7 +21,7 @@ const LaunchRequestHandler = {
 const BuscarFarmaciasHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasIntent'||Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasAbiertasIntent');
     },
     async handle(handlerInput) {
         const ubicacion = handlerInput.requestEnvelope.request.intent.slots.ubicacion.value;
@@ -42,7 +43,11 @@ const BuscarFarmaciasHandler = {
                 
             } else {
                 const location = geocodeResponse.data.candidates[0].geometry.location;
-                const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=farmacia&key=${API_KEY}`;
+                let placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&rankby=distance&keyword=farmacia&key=${API_KEY}`;
+                const filtro = Alexa.getIntentName(handlerInput.requestEnvelope);
+                if (filtro === 'BuscarFarmaciasAbiertasIntent'){
+                    const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=farmacia&key=${API_KEY}`;
+                }
 
                 const placesResponse = await axios.get(placesUrl);
                 let results = placesResponse.data.results;
@@ -51,7 +56,7 @@ const BuscarFarmaciasHandler = {
                     speakOutput = 'No encontré farmacias cerca de la ubicación proporcionada.';
                 } else {
                     // Ordenar las farmacias por distancia
-                    const farmacias = results.slice(0, 3).map((farmacia, index) => {
+                    const farmacias = results.slice(0, CANT_RESULTS).map((farmacia, index) => {
                         const distancia = calcularDistancia(location.lat, location.lng, farmacia.geometry.location.lat, farmacia.geometry.location.lng);
                         return `${index + 1}. ${farmacia.name}, a ${distancia.toFixed(2)} kilómetros, ubicada en ${farmacia.vicinity}`;
                     });
