@@ -45,6 +45,62 @@
             "busca farmacias abiertas cerca de {ubicacion}",
             "dónde están las farmacias abiertas más cercanas a {ubicacion}"
           ]
+        },
+        {
+          "slots": [
+            {
+              "name": "ubicacion",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "BuscarFarmaciasSimiIntent",
+          "samples": [
+            "encuentra las farmacias doctor simi más cercanas a {ubicacion}",
+            "busca farmacias doctor simi cerca de {ubicacion}",
+            "dónde están las farmacias doctor simi más cercanas a {ubicacion}"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "ubicacion",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "BuscarFarmaciasAhumadaIntent",
+          "samples": [
+            "dónde están las farmacias ahumada más cercanas a {ubicacion}",
+            "busca farmacias ahumada cerca de {ubicacion}",
+            "encuentra las farmacias ahumada más cercanas a {ubicacion}"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "ubicacion",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "BuscarFarmaciasCruzVerdeIntent",
+          "samples": [
+            "encuentra las farmacias cruz verde más cercanas a {ubicacion}",
+            "busca farmacias cruz verde cerca de {ubicacion}",
+            "dónde están las farmacias cruz verde más cercanas a {ubicacion}"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "ubicacion",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "BuscarFarmaciasSalcobrandIntent",
+          "samples": [
+            "dónde están las farmacias más cercanas a {ubicacion}",
+            "busca farmacias salcobrand cerca de {ubicacion}",
+            "encuentra las farmacias salcobrand más cercanas a {ubicacion}"
+          ]
         }
       ],
       "types": [],

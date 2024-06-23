@@ -32,18 +32,33 @@
       "isAvailableWorldwide": true,
       "locales": {
         "es-US": {
-          "description": "Sample Full Description",
+          "description": "Skill para solicitar a Alexa las farmacias más cercanas",
           "examplePhrases": [
-            "Alexa abre hola mundo",
-            "hola",
-            "ayuda"
+            "dónde están las farmacias más cercanas a {ubicacion}",
+            "busca farmacias cerca de {ubicacion}",
+            "encuentra las farmacias más cercanas a {ubicacion}",
+            "encuentra las farmacias abiertas más cercanas a {ubicacion}",
+            "busca farmacias abiertas cerca de {ubicacion}",
+            "dónde están las farmacias abiertas más cercanas a {ubicacion}",
+            "encuentra las farmacias doctor simi más cercanas a {ubicacion}",
+            "busca farmacias doctor simi cerca de {ubicacion}",
+            "dónde están las farmacias doctor simi más cercanas a {ubicacion}",
+            "dónde están las farmacias ahumada más cercanas a {ubicacion}",
+            "busca farmacias ahumada cerca de {ubicacion}",
+            "encuentra las farmacias ahumada más cercanas a {ubicacion}",
+            "encuentra las farmacias cruz verde más cercanas a {ubicacion}",
+            "busca farmacias cruz verde cerca de {ubicacion}",
+            "dónde están las farmacias cruz verde más cercanas a {ubicacion}",
+            "dónde están las farmacias más cercanas a {ubicacion}",
+            "busca farmacias salcobrand cerca de {ubicacion}",
+            "encuentra las farmacias salcobrand más cercanas a {ubicacion}"
           ],
           "keywords": [],
           "name": "FarmaSearch",
-          "summary": "Sample Short Description"
+          "summary": "Skill para solicitar a Alexa las farmacias más cercanas, se puede filtrar solicitando farmacias abiertas o por cadena solicitando farmacias {nombre_cadena} (esta última funcionalidad solo soporta actualmente las siguientes cadenas: Ahumada, Cruz Verde, Doctor Simi, Salcobrand)"
         }
       },
-      "testingInstructions": "Sample Testing Instructions."
+      "testingInstructions": "Es necesario conseguir una API key de google Places para poder activar el funcionamiento de la skill, ya que se integra con esta API. Se puede también decidir cuantos resultados quieren mostrarse con el parámetro CANT_RESULTS."
     }
   }
 }
