@@ -42,7 +42,7 @@ const BuscarFarmaciasHandler = {
                 
             } else {
                 const location = geocodeResponse.data.candidates[0].geometry.location;
-                const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&rankby=distance&opennow=true&keyword=farmacia&key=${API_KEY}`;
+                const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=farmacia&key=${API_KEY}`;
 
                 const placesResponse = await axios.get(placesUrl);
                 let results = placesResponse.data.results;
@@ -52,7 +52,8 @@ const BuscarFarmaciasHandler = {
                 } else {
                     // Ordenar las farmacias por distancia
                     const farmacias = results.slice(0, 3).map((farmacia, index) => {
-                        return `${index + 1}.- ${farmacia.name}, a glerp kilómetros, ubicada en ${farmacia.vicinity}`;
+                        const distancia = calcularDistancia(location.lat, location.lng, farmacia.geometry.location.lat, farmacia.geometry.location.lng);
+                        return `${index + 1}. ${farmacia.name}, a ${distancia.toFixed(2)} kilómetros, ubicada en ${farmacia.vicinity}`;
                     });
                     speakOutput = `Las farmacias más cercanas a ${ubicacion} son las siguientes: ${farmacias.join('. ')}.`;
                 }
@@ -139,11 +140,6 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 
-/**
- * This handler acts as the entry point for your skill, routing all request and response
- * payloads to the handlers above. Make sure any new handlers or interceptors you've
- * defined are included below. The order matters - they're processed top to bottom 
- * */
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
