@@ -2,7 +2,7 @@ const Alexa = require('ask-sdk-core');
 const axios = require('axios');
 
 const API_KEY = '';
-const CANT_RESULTS = 5;
+const CANT_RESULTS = 3;
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -21,7 +21,8 @@ const LaunchRequestHandler = {
 const BuscarFarmaciasHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasIntent'||Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasAbiertasIntent');
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasIntent'
+        
     },
     async handle(handlerInput) {
         const ubicacion = handlerInput.requestEnvelope.request.intent.slots.ubicacion.value;
@@ -44,11 +45,270 @@ const BuscarFarmaciasHandler = {
             } else {
                 const location = geocodeResponse.data.candidates[0].geometry.location;
                 let placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&rankby=distance&keyword=farmacia&key=${API_KEY}`;
-                const filtro = Alexa.getIntentName(handlerInput.requestEnvelope);
-                if (filtro === 'BuscarFarmaciasAbiertasIntent'){
-                    const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=farmacia&key=${API_KEY}`;
-                }
+                const placesResponse = await axios.get(placesUrl);
+                let results = placesResponse.data.results;
 
+                if (results.length === 0) {
+                    speakOutput = 'No encontré farmacias cerca de la ubicación proporcionada.';
+                } else {
+                    // Ordenar las farmacias por distancia
+                    const farmacias = results.slice(0, CANT_RESULTS).map((farmacia, index) => {
+                        const distancia = calcularDistancia(location.lat, location.lng, farmacia.geometry.location.lat, farmacia.geometry.location.lng);
+                        return `${index + 1}. ${farmacia.name}, a ${distancia.toFixed(2)} kilómetros, ubicada en ${farmacia.vicinity}`;
+                    });
+                    speakOutput = `Las farmacias más cercanas a ${ubicacion} son las siguientes: ${farmacias.join('. ')}.`;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            speakOutput = 'Lo siento, no pude obtener la información en este momento.';
+        }
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
+const BuscarFarmaciasAbiertasHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasAbiertasIntent';
+    },
+    async handle(handlerInput) {
+        const ubicacion = handlerInput.requestEnvelope.request.intent.slots.ubicacion.value;
+
+        if (!ubicacion) {
+            return handlerInput.responseBuilder
+                .speak('Por favor, dime una ubicación para buscar farmacias.')
+                .reprompt('Dime una ubicación para buscar farmacias.')
+                .getResponse();
+        }
+
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=geometry&input=${encodeURI(ubicacion)}&inputtype=textquery&key=${API_KEY}`;
+        let speakOutput;
+
+        try {
+            const geocodeResponse = await axios.get(geocodeUrl);
+            if (geocodeResponse.data.candidates.length === 0) {
+                speakOutput = 'No pude encontrar la ubicación que mencionaste.';
+                
+            } else {
+                const location = geocodeResponse.data.candidates[0].geometry.location;
+                let placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=farmacia&key=${API_KEY}`;
+                
+                const placesResponse = await axios.get(placesUrl);
+                let results = placesResponse.data.results;
+
+                if (results.length === 0) {
+                    speakOutput = 'No encontré farmacias cerca de la ubicación proporcionada.';
+                } else {
+                    // Ordenar las farmacias por distancia
+                    const farmacias = results.slice(0, CANT_RESULTS).map((farmacia, index) => {
+                        const distancia = calcularDistancia(location.lat, location.lng, farmacia.geometry.location.lat, farmacia.geometry.location.lng);
+                        return `${index + 1}. ${farmacia.name}, a ${distancia.toFixed(2)} kilómetros, ubicada en ${farmacia.vicinity}`;
+                    });
+                    speakOutput = `Las farmacias más cercanas a ${ubicacion} son las siguientes: ${farmacias.join('. ')}.`;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            speakOutput = 'Lo siento, no pude obtener la información en este momento.';
+        }
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
+const BuscarFarmaciasSimiHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasSimiIntent';
+    },
+    async handle(handlerInput) {
+        const ubicacion = handlerInput.requestEnvelope.request.intent.slots.ubicacion.value;
+
+        if (!ubicacion) {
+            return handlerInput.responseBuilder
+                .speak('Por favor, dime una ubicación para buscar farmacias.')
+                .reprompt('Dime una ubicación para buscar farmacias.')
+                .getResponse();
+        }
+
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=geometry&input=${encodeURI(ubicacion)}&inputtype=textquery&key=${API_KEY}`;
+        let speakOutput;
+
+        try {
+            const geocodeResponse = await axios.get(geocodeUrl);
+            if (geocodeResponse.data.candidates.length === 0) {
+                speakOutput = 'No pude encontrar la ubicación que mencionaste.';
+                
+            } else {
+                const location = geocodeResponse.data.candidates[0].geometry.location;
+				const FARMACIA= "farmacia dr simi"
+                let placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=${encodeURI(FARMACIA)}&key=${API_KEY}`;
+                
+                const placesResponse = await axios.get(placesUrl);
+                let results = placesResponse.data.results;
+
+                if (results.length === 0) {
+                    speakOutput = 'No encontré farmacias cerca de la ubicación proporcionada.';
+                } else {
+                    // Ordenar las farmacias por distancia
+                    const farmacias = results.slice(0, CANT_RESULTS).map((farmacia, index) => {
+                        const distancia = calcularDistancia(location.lat, location.lng, farmacia.geometry.location.lat, farmacia.geometry.location.lng);
+                        return `${index + 1}. ${farmacia.name}, a ${distancia.toFixed(2)} kilómetros, ubicada en ${farmacia.vicinity}`;
+                    });
+                    speakOutput = `Las farmacias más cercanas a ${ubicacion} son las siguientes: ${farmacias.join('. ')}.`;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            speakOutput = 'Lo siento, no pude obtener la información en este momento.';
+        }
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
+const BuscarFarmaciasSalcobrandHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasSalcobrandIntent';
+    },
+    async handle(handlerInput) {
+        const ubicacion = handlerInput.requestEnvelope.request.intent.slots.ubicacion.value;
+
+        if (!ubicacion) {
+            return handlerInput.responseBuilder
+                .speak('Por favor, dime una ubicación para buscar farmacias.')
+                .reprompt('Dime una ubicación para buscar farmacias.')
+                .getResponse();
+        }
+
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=geometry&input=${encodeURI(ubicacion)}&inputtype=textquery&key=${API_KEY}`;
+        let speakOutput;
+
+        try {
+            const geocodeResponse = await axios.get(geocodeUrl);
+            if (geocodeResponse.data.candidates.length === 0) {
+                speakOutput = 'No pude encontrar la ubicación que mencionaste.';
+                
+            } else {
+                const location = geocodeResponse.data.candidates[0].geometry.location;
+				const FARMACIA= "farmacia salcobrand"
+                let placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=${encodeURI(FARMACIA)}&key=${API_KEY}`;
+                
+                const placesResponse = await axios.get(placesUrl);
+                let results = placesResponse.data.results;
+
+                if (results.length === 0) {
+                    speakOutput = 'No encontré farmacias cerca de la ubicación proporcionada.';
+                } else {
+                    // Ordenar las farmacias por distancia
+                    const farmacias = results.slice(0, CANT_RESULTS).map((farmacia, index) => {
+                        const distancia = calcularDistancia(location.lat, location.lng, farmacia.geometry.location.lat, farmacia.geometry.location.lng);
+                        return `${index + 1}. ${farmacia.name}, a ${distancia.toFixed(2)} kilómetros, ubicada en ${farmacia.vicinity}`;
+                    });
+                    speakOutput = `Las farmacias más cercanas a ${ubicacion} son las siguientes: ${farmacias.join('. ')}.`;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            speakOutput = 'Lo siento, no pude obtener la información en este momento.';
+        }
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
+const BuscarFarmaciasAhumadaHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasAhumadaIntent';
+    },
+    async handle(handlerInput) {
+        const ubicacion = handlerInput.requestEnvelope.request.intent.slots.ubicacion.value;
+
+        if (!ubicacion) {
+            return handlerInput.responseBuilder
+                .speak('Por favor, dime una ubicación para buscar farmacias.')
+                .reprompt('Dime una ubicación para buscar farmacias.')
+                .getResponse();
+        }
+
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=geometry&input=${encodeURI(ubicacion)}&inputtype=textquery&key=${API_KEY}`;
+        let speakOutput;
+
+        try {
+            const geocodeResponse = await axios.get(geocodeUrl);
+            if (geocodeResponse.data.candidates.length === 0) {
+                speakOutput = 'No pude encontrar la ubicación que mencionaste.';
+                
+            } else {
+                const location = geocodeResponse.data.candidates[0].geometry.location;
+				const FARMACIA= "farmacia ahumada"
+                let placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=${encodeURI(FARMACIA)}&key=${API_KEY}`;
+                
+                const placesResponse = await axios.get(placesUrl);
+                let results = placesResponse.data.results;
+
+                if (results.length === 0) {
+                    speakOutput = 'No encontré farmacias cerca de la ubicación proporcionada.';
+                } else {
+                    // Ordenar las farmacias por distancia
+                    const farmacias = results.slice(0, CANT_RESULTS).map((farmacia, index) => {
+                        const distancia = calcularDistancia(location.lat, location.lng, farmacia.geometry.location.lat, farmacia.geometry.location.lng);
+                        return `${index + 1}. ${farmacia.name}, a ${distancia.toFixed(2)} kilómetros, ubicada en ${farmacia.vicinity}`;
+                    });
+                    speakOutput = `Las farmacias más cercanas a ${ubicacion} son las siguientes: ${farmacias.join('. ')}.`;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            speakOutput = 'Lo siento, no pude obtener la información en este momento.';
+        }
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
+const BuscarFarmaciasCruzverdeHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuscarFarmaciasCruzVerdeIntent';
+    },
+    async handle(handlerInput) {
+        const ubicacion = handlerInput.requestEnvelope.request.intent.slots.ubicacion.value;
+
+        if (!ubicacion) {
+            return handlerInput.responseBuilder
+                .speak('Por favor, dime una ubicación para buscar farmacias.')
+                .reprompt('Dime una ubicación para buscar farmacias.')
+                .getResponse();
+        }
+
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=geometry&input=${encodeURI(ubicacion)}&inputtype=textquery&key=${API_KEY}`;
+        let speakOutput;
+
+        try {
+            const geocodeResponse = await axios.get(geocodeUrl);
+            if (geocodeResponse.data.candidates.length === 0) {
+                speakOutput = 'No pude encontrar la ubicación que mencionaste.';
+                
+            } else {
+                const location = geocodeResponse.data.candidates[0].geometry.location;
+				const FARMACIA= "farmacia cruz verde"
+                let placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&opennow=true&rankby=distance&keyword=${encodeURI(FARMACIA)}&key=${API_KEY}`;
+                
                 const placesResponse = await axios.get(placesUrl);
                 let results = placesResponse.data.results;
 
@@ -149,6 +409,11 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         BuscarFarmaciasHandler,
+        BuscarFarmaciasAbiertasHandler,
+        BuscarFarmaciasCruzverdeHandler,
+        BuscarFarmaciasAhumadaHandler,
+        BuscarFarmaciasSimiHandler,
+        BuscarFarmaciasSalcobrandHandler,
         HelpHandler,
         CancelAndStopHandler,
         SessionEndedRequestHandler
