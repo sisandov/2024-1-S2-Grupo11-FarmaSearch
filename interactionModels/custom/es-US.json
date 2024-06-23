@@ -15,73 +15,26 @@
           "samples": []
         },
         {
-          "name": "AMAZON.FallbackIntent",
-          "samples": []
-        },
-        {
           "slots": [
             {
-              "name": "factType",
-              "type": "FactType"
+              "name": "ubicacion",
+              "type": "AMAZON.SearchQuery"
             }
           ],
-          "name": "GetNewFactIntent",
+          "name": "HelloWorldIntent",
           "samples": [
-            "un hecho",
-            "una {factType} hecho",
-            "Dime una hecho",
-            "Dime una {factType} hecho",
-            "dame un hecho",
-            "dime trivia",
-            "Dime una {factType} trivia",
-            "dame trivia",
-            "dame una {factType} trivia",
-            "dame algo de información",
-            "dame algo de {factType} información",
-            "Dime algo",
-            "Dame algo"
+            "dónde están las farmacias más cercanas a {ubicacion}",
+            "busca farmacias cerca de {ubicacion}",
+            "encuentra las farmacias más cercanas a {ubicacion}"
           ]
         },
         {
           "name": "AMAZON.NavigateHomeIntent",
           "samples": []
-        },
-        {
-          "slots": [
-            {
-              "name": "factType",
-              "type": "FactType"
-            }
-          ],
-          "name": "AddNewFact",
-          "samples": [
-            "agregue {factType} como un tema nuevo",
-            "guardar {factType} como un tema nuevo",
-            "agrega {factType} como tema favorito",
-            "guardar {factType} como tema favorito",
-            "agregue {factType} como un tema de hechos favorito",
-            "guardar {factType} como un tema de hechos favorito"
-          ]
         }
       ],
-      "types": [
-        {
-          "values": [
-            {
-              "name": {
-                "value": "Espacio"
-              }
-            },
-            {
-              "name": {
-                "value": "Fútbol"
-              }
-            }
-          ],
-          "name": "FactType"
-        }
-      ],
-      "invocationName": "change me"
+      "types": [],
+      "invocationName": "grupo once"
     }
   }
 }
